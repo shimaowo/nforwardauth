@@ -33,9 +33,9 @@ static FORWARDED_PROTO: &str = "X-Forwarded-Proto";
 static FORWARDED_URI: &str = "X-Forwarded-Uri";
 
 /* File Paths */
-static INDEX_DOCUMENT: &str = "/public/index.html";
-static LOGOUT_DOCUMENT: &str = "/public/logout.html";
-static PASSWD_FILE: &str = "/passwd";
+static INDEX_DOCUMENT: &str = "public/index.html";
+static LOGOUT_DOCUMENT: &str = "public/logout.html";
+static PASSWD_FILE: &str = "passwd";
 
 /* HTTP Status Responses */
 static NOT_FOUND: &[u8] = b"Not Found";
@@ -51,6 +51,11 @@ impl Config {
     }
 
     fn initialize() -> Result<Config> {
+        // treat this as optional; it will be used if present and necessary, but existing env vars
+        // will override it
+        // If a required value isn't specified as an env var or in this file, it will still error below normally
+        let _ = dotenvy::dotenv();
+
         // port: Port server should bind and listen on
         let port: u16 = match env::var("PORT") {
             Ok(port) => port.parse::<u16>().unwrap(),
@@ -128,7 +133,7 @@ async fn api(req: Request<hyper::body::Incoming>) -> Result<Response<BoxBody>> {
         (&Method::GET, "/logout") => api_serve_file(LOGOUT_DOCUMENT, StatusCode::OK).await,
         _ => {
             api_serve_file(
-                format!("/public{}", req.uri().path()).as_str(),
+                format!("public/{}", req.uri().path()).as_str(),
                 StatusCode::OK,
             )
             .await
