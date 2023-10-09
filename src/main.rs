@@ -266,6 +266,7 @@ async fn api_login(req: Request<IncomingBody>) -> Result<Response<BoxBody>> {
                 claims.sign_with_key(&Config::global().key).unwrap(),
             )
             .domain(&Config::global().cookie_domain)
+            .path("/")
             .http_only(true)
             .secure(Config::global().cookie_secure)
             .same_site(SameSite::Strict)
@@ -294,6 +295,7 @@ async fn api_logout() -> Result<Response<BoxBody>> {
     let past = OffsetDateTime::now_utc() - Duration::days(1);
     let expired_cookie = Cookie::build(&Config::global().cookie_name, "")
         .domain(&Config::global().cookie_domain)
+        .path("/")
         .http_only(true)
         .secure(Config::global().cookie_secure)
         .same_site(SameSite::Strict)

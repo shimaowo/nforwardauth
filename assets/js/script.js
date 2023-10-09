@@ -29,7 +29,7 @@ const handleResponse = (res) => {
         window.location.replace(params.r);
       } else {
         // Redirect to logout page
-        window.location.replace("/logout?success=true");
+        window.location.replace(SITE_ROOT + "/logout?success=true");
       }
       break;
     case 401:
@@ -68,7 +68,7 @@ const login = () => {
   setFieldsDisabled(true);
 
   // Sent HTTP request
-  fetch("/login", {
+  fetch(SITE_ROOT + "/login", {
     method: "post",
     body: JSON.stringify(data),
     headers: { "Content-Type": "application/json" },
@@ -83,6 +83,10 @@ const setFieldsDisabled = (disabled) => {
   document.getElementById("password").disabled = disabled;
   document.getElementById("submit").disabled = disabled;
 };
+
+// TODO: there must be a better way to do this...
+const SITE_ROOT = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+console.log(SITE_ROOT);
 
 // Configure submit button click to trigger login
 const submitButton = document.getElementById("submit");

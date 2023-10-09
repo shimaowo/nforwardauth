@@ -31,7 +31,7 @@ const handleResponse = (res) => {
         "success"
       );
       setInterval(() => {
-        window.location.replace("/login");
+        window.location.replace(SITE_ROOT + "/login");
       }, 2000);
       break;
     default:
@@ -48,7 +48,7 @@ const logout = () => {
   setFieldsDisabled(true);
 
   // Sent HTTP request
-  fetch("/logout", {
+  fetch(SITE_ROOT + "/logout", {
     method: "post",
     body: JSON.stringify({}),
     headers: { "Content-Type": "application/json" },
@@ -61,6 +61,9 @@ const setFieldsDisabled = (disabled) => {
   // Set fields disabled attributes
   document.getElementById("submit").disabled = disabled;
 };
+
+// TODO: there must be a better way to do this...
+const SITE_ROOT = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
 
 // Configure submit button click to trigger login
 const submitButton = document.getElementById("submit");
