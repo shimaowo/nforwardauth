@@ -115,7 +115,7 @@ impl Config {
             Ok(value) if value.ends_with("/") => value,
             Ok(value) => format!("{}/", value),
             // preserve old/default behavior
-            Err(_) => "/".to_string(),
+            Err(..) => "/".to_string(),
         };
 
         // Return config instance with initialized values
