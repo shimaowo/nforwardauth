@@ -9,4 +9,5 @@ pub struct Config {
     pub cookie_secure: bool,
     pub cookie_domain: String,
     pub cookie_name: String,
+    pub site_root: String,
 }

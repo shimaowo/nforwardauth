@@ -32,7 +32,7 @@ static FORWARDED_HOST: &str = "X-Forwarded-Host";
 static FORWARDED_PROTO: &str = "X-Forwarded-Proto";
 static FORWARDED_URI: &str = "X-Forwarded-Uri";
 
-/* File Paths */
+/* File Paths, relative to SITE_ROOT */
 static INDEX_DOCUMENT: &str = "public/index.html";
 static LOGOUT_DOCUMENT: &str = "public/logout.html";
 static PASSWD_FILE: &str = "passwd";
@@ -111,6 +111,13 @@ impl Config {
             Err(..) => "nforwardauth".to_string(),
         };
 
+        let site_root: String = match env::var("SITE_ROOT") {
+            Ok(value) if value.ends_with("/") => value,
+            Ok(value) => format!("{}/", value),
+            // preserve old/default behavior
+            Err(_) => "/".to_string(),
+        };
+
         // Return config instance with initialized values
         Ok(Config {
             port,
@@ -119,6 +126,7 @@ impl Config {
             cookie_secure,
             cookie_domain,
             cookie_name,
+            site_root,
         })
     }
 }
@@ -128,12 +136,24 @@ async fn api(req: Request<hyper::body::Incoming>) -> Result<Response<BoxBody>> {
     match (req.method(), req.uri().path()) {
         (&Method::GET, "/") | (&Method::GET, "/forward") => api_forward_auth(req).await,
         (&Method::POST, "/login") => api_login(req).await,
-        (&Method::GET, "/login") => api_serve_file(INDEX_DOCUMENT, StatusCode::OK).await,
+        (&Method::GET, "/login") => {
+            api_serve_file(
+                format!("{}{}", Config::global().site_root, INDEX_DOCUMENT).as_str(),
+                StatusCode::OK,
+            )
+            .await
+        }
         (&Method::POST, "/logout") => api_logout().await,
-        (&Method::GET, "/logout") => api_serve_file(LOGOUT_DOCUMENT, StatusCode::OK).await,
+        (&Method::GET, "/logout") => {
+            api_serve_file(
+                format!("{}{}", Config::global().site_root, LOGOUT_DOCUMENT).as_str(),
+                StatusCode::OK,
+            )
+            .await
+        }
         _ => {
             api_serve_file(
-                format!("public/{}", req.uri().path()).as_str(),
+                format!("{}public/{}", Config::global().site_root, req.uri().path()).as_str(),
                 StatusCode::OK,
             )
             .await
@@ -158,7 +178,11 @@ async fn api_forward_auth(req: Request<IncomingBody>) -> Result<Response<BoxBody
                 let claims: BTreeMap<String, String> =
                     token_str.verify_with_key(&Config::global().key).unwrap();
                 if claims["authenticated"] == "true" {
-                    return api_serve_file(LOGOUT_DOCUMENT, StatusCode::OK).await;
+                    return api_serve_file(
+                        format!("{}{}", Config::global().site_root, LOGOUT_DOCUMENT).as_str(),
+                        StatusCode::OK,
+                    )
+                    .await;
                 }
             }
         }
@@ -178,7 +202,11 @@ async fn api_forward_auth(req: Request<IncomingBody>) -> Result<Response<BoxBody
             let verify = pwhash::unix::verify(&credentials.password, &hash);
             if verify {
                 // Correct login
-                return api_serve_file(LOGOUT_DOCUMENT, StatusCode::OK).await;
+                return api_serve_file(
+                    format!("{}{}", Config::global().site_root, LOGOUT_DOCUMENT).as_str(),
+                    StatusCode::OK,
+                )
+                .await;
             }
         }
     }
@@ -305,7 +333,9 @@ async fn api_serve_file(filename: &str, status_code: StatusCode) -> Result<Respo
 }
 
 async fn get_user_hash(user: &str) -> Result<Option<String>> {
-    if let Ok(passwd) = fs::read_to_string(PASSWD_FILE).await {
+    if let Ok(passwd) =
+        fs::read_to_string(format!("{}{}", Config::global().site_root, PASSWD_FILE)).await
+    {
         let pattern = format!(r"(\n|^){}:(.+)(\n|$)", user);
         let regex = Regex::new(&pattern).unwrap();
         let user_match = regex.captures(&passwd);
