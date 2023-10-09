@@ -8,6 +8,13 @@ nforwardauth is an extremely lightweight, blazing fast forward auth service that
 
 ![Screenshot](https://github.com/nosduco/nforwardauth/blob/main/screenshot.png)
 
+## Changes in this fork
+
+- More friendly for a local deploy, rather than only via docker
+- New optional environment variable `SITE_ROOT`, allows for serving files at a location different from the hardcoded "/"
+- Optional environment variable settings via a `.env` file, so secrets do not need to be in the global env or on the command line
+- Address [#34](https://github.com/nosduco/nforwardauth/issues/34)
+
 ## Why nforwardauth?
 
 The inspiration for nforwardauth came from my frustration with using basic auth as a simple way to protect my self-hosted server applications. I wanted something that was more user-friendly and streamlined, and that didn't require me to authenticate with every site and allowed me to autofill my passwords with my password manager.
@@ -146,6 +153,7 @@ Look at the `examples` directory in the repository or the below details section 
 | `COOKIE_DOMAIN` | Set the domain for the cookies, allow auth on sites beyond the root domain | string | Inferred by base url of `AUTH_HOST` | `mydomain.com`
 | `COOKIE_NAME` | Set name for the cookies. Helpful if running multiple instances to prevent collision | string | `nforwardauth` | `auth-token-1`
 | `PORT` | Set port to litsen on | number | `3000` | `80`
+| `SITE_ROOT` | Set the full path to the directory where static files are served from | string | `/` | `/var/www/nforwardauth/`
 
 ## Roadmap
 
