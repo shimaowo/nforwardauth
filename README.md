@@ -13,6 +13,7 @@ nforwardauth is an extremely lightweight, blazing fast forward auth service that
 - More friendly for a local deploy, rather than only via docker
 - New optional environment variable `SITE_ROOT`, allows for serving files at a location different from the hardcoded "/"
 - Optional environment variable settings via a `.env` file, so secrets do not need to be in the global env or on the command line
+- Added ability to host at a relative path endpoint, rather than requiring a root subdomain (eg, using mydomain.com/auth instead of auth.mydomain.com)
 - Address [#34](https://github.com/nosduco/nforwardauth/issues/34)
 
 ## Why nforwardauth?
