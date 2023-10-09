@@ -16,6 +16,8 @@ nforwardauth is an extremely lightweight, blazing fast forward auth service that
 - Added ability to host at a relative path endpoint, rather than requiring a root subdomain (eg, using mydomain.com/auth instead of auth.mydomain.com)
 - Address [#34](https://github.com/nosduco/nforwardauth/issues/34)
 
+Caddy example with new features [here](https://github.com/shimaowo/nforwardauth/tree/smw_tweaks/examples/caddy-new-features)
+
 ## Why nforwardauth?
 
 The inspiration for nforwardauth came from my frustration with using basic auth as a simple way to protect my self-hosted server applications. I wanted something that was more user-friendly and streamlined, and that didn't require me to authenticate with every site and allowed me to autofill my passwords with my password manager.

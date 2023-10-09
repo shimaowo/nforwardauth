@@ -1,0 +1,19 @@
+# see also the .env file for required cookie settings when using a relative path endpoint
+
+:80 {
+	# nforwardauth relative endpoint (http://localhost/auth/)
+	# you can still use a subdomain, which would then obviously be outside this server block
+	handle_path /auth/* {
+		reverse_proxy :3000
+	}
+
+	# protect everything for demo purposes
+	handle * {
+		forward_auth :3000 {
+			uri /
+		}
+
+		# just print the uri we visited, to prove that auth works
+		respond "URI: {uri}"
+	}
+}
